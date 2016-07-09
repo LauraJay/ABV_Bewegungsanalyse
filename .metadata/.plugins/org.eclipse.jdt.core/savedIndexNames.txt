@@ -1,0 +1,2 @@
+INDEX VERSION 1.127+/Users/laura/Documents/GitHub/ABV_Bewegungsanalyse/.metadata/.plugins/org.eclipse.jdt.core
+1309178722.index
