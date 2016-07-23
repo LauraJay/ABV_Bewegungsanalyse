@@ -4,6 +4,7 @@ import ij.gui.Arrow;
 import ij.gui.OvalRoi;
 import ij.gui.Roi;
 import ij.plugin.filter.PlugInFilter;
+import ij.process.Blitter;
 import ij.process.FloatProcessor;
 import ij.process.ImageProcessor;
 
@@ -12,7 +13,7 @@ public class MotionVectorField_ implements PlugInFilter {
 	private ImagePlus imp;
 	private int width, height, depth, widthInBlocks, heightInBlocks, depthMotion, numberOfBlocks;
 	private ImageStack inStack, outStack;
-	private FloatProcessor outIp;
+	//private FloatProcessor outIp;
 	private int blockSize = 8, blockSizeMotion=32;
 	
 
@@ -36,9 +37,10 @@ public class MotionVectorField_ implements PlugInFilter {
 		float[][] values = new float[depth][];
 		Roi[] forms = new Roi[numberOfBlocks];
 		Arrow tmp; // motion
-		OvalRoi tmp2; // no motion
-		outStack = new ImageStack(width*4, height*4);
+		//OvalRoi tmp2; // no motion
+		outStack = new ImageStack(width * 4, height * 4);
 		FloatProcessor outIp;
+		FloatProcessor Arrows;
 		double xStart, yStart, xEnd, yEnd;
 
 		// read data from Stack
@@ -47,8 +49,9 @@ public class MotionVectorField_ implements PlugInFilter {
 		}
 		// write motion vector field
 		for (int slice = 0; slice < depthMotion; slice++) {
-			outIp = new FloatProcessor(width*4, height*4);
-
+			Arrows = new FloatProcessor(width * 4, height * 4);
+			outIp = new FloatProcessor(width * 4, height * 4);
+			outIp.copyBits(inStack.getProcessor(slice+1).resize(4 * width), 0, 0, Blitter.COPY);
 			for (int i = 0; i < heightInBlocks; i++) {
 				for (int j = 0; j < widthInBlocks; j++) {
 					
@@ -58,15 +61,16 @@ public class MotionVectorField_ implements PlugInFilter {
 					yEnd = (blockSizeMotion / 2 + i * blockSizeMotion) + 0.5;
 
 					tmp = new Arrow(xEnd, yEnd, xStart, yStart);
-					tmp.setStyle("notched");
+					tmp.setStyle(Arrow.NOTCHED);
 					forms[i] = tmp;
 
 					// tmp2 = new OvalRoi(xStart, yStart, 6, 6);
 					// forms[i] = tmp2;
-
-					outIp.draw(forms[i]);
+					Arrows.draw(forms[i]);					
 				}
 			}
+			Arrows.multiply(255/Arrows.maxValue());
+			outIp.copyBits(Arrows, 0, 0, Blitter.COPY_ZERO_TRANSPARENT);
 			outStack.addSlice(outIp);
 		}
 
