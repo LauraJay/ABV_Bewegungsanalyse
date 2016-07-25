@@ -19,7 +19,7 @@ public class MotionVectorField_ implements PlugInFilter {
 	private int width, height, depth, widthInBlocks, heightInBlocks, depthMotion, numberOfBlocks;
 	private ImageStack inStack, outStack;
 	//private FloatProcessor outIp;
-	private int blockSize = 32, blockSizeMotion = 32;
+	private int blockSize = 8, blockSizeMotion = 32;
 	
 	// Current frame
 	int curFrame = 2;
@@ -103,6 +103,7 @@ public class MotionVectorField_ implements PlugInFilter {
 
 	}
 	
+	//@ 
 	private int minimizeCostFunc(int k){
 		
 		return 0;
@@ -118,12 +119,12 @@ public class MotionVectorField_ implements PlugInFilter {
 		return 0;
 	}
 	
-	private double tempCoherence (int k){
+	private double tempCoherence (int k, int altIndex){
 		
 		return 0;
 	}
 	
-	private double spatialCoherence (int k){
+	private double spatialCoherence (int k, int altIndex){
 		
 		return 0;
 	}
