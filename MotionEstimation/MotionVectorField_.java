@@ -21,6 +21,8 @@ public class MotionVectorField_ implements PlugInFilter {
 	//private FloatProcessor outIp;
 	private int blockSize = 8, blockSizeMotion = 32;
 	
+	int iterations = 5;
+	
 	// Current frame
 	int curFrame = 2;
 	
@@ -62,19 +64,33 @@ public class MotionVectorField_ implements PlugInFilter {
 		FloatProcessor outIp;
 		FloatProcessor Arrows;
 		double xStart, yStart, xEnd, yEnd;
+		int indexAlterMin;
+		double [] costPerAlter = new double [v_k.size()];
 
 		// read data from Stack
 		for (int slice = 0; slice < depth; slice++) {
 			values[slice] = (float[]) inStack.getProcessor(slice + 1).getPixels();
 		}
-		// write motion vector field
+//		System.out.println(v_k.size());
+		//calculate and write motion vector field
 		for (int slice = 0; slice < depthMotion; slice++) {
+			for (int i = 0; i < iterations; i++) {
+				for (int k = 0; k < numberOfBlocks; k++) {
+					for (int a = 0; a < v_k.size(); a++) {
+						costPerAlter [a] = costFunc(k, a);
+					}
+					indexAlterMin = minimizeCostFunc(k);
+				}
+			}
+			
 			Arrows = new FloatProcessor(width * 4, height * 4);
 			outIp = new FloatProcessor(width * 4, height * 4);
 			outIp.copyBits(inStack.getProcessor(slice+1).resize(4 * width), 0, 0, Blitter.COPY);
 			for (int i = 0; i < heightInBlocks; i++) {
 				for (int j = 0; j < widthInBlocks; j++) {
 					
+					//estimated motion vector
+					//TO DO: +0.5 durch x und y koord des Bewegungsvektor ersetzen
 					xStart = blockSizeMotion/ 2 + j * blockSizeMotion;
 					yStart = blockSizeMotion / 2 + i * blockSizeMotion;
 					xEnd = (blockSizeMotion/ 2 + j * blockSizeMotion) + 0.5;
