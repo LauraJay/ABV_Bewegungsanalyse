@@ -14,4 +14,16 @@
 	<natures>
 		<nature>org.eclipse.jdt.core.javanature</nature>
 	</natures>
+	<linkedResources>
+		<link>
+			<name>commons-math3-3.6.1.jar</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/commons-math3-3.6.1.jar</locationURI>
+		</link>
+		<link>
+			<name>ij.jar</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/ij.jar</locationURI>
+		</link>
+	</linkedResources>
 </projectDescription>
