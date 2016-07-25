@@ -10,7 +10,7 @@
 </listAttribute>
 <booleanAttribute key="org.eclipse.jdt.launching.DEFAULT_CLASSPATH" value="false"/>
 <stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="ij.ImageJ"/>
-<stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="-macro &quot;${workspace_loc}/MotionEstimation/test.ijm“"/>
+<stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="-macro &quot;${workspace_loc}/MotionEstimation/test.ijm&quot;"/>
 <stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value=""/>
 <stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-Xmx700m -Dplugins.dir=&quot;${workspace_loc}&quot;"/>
 </launchConfiguration>
