@@ -1,3 +1,8 @@
+import java.util.ArrayList;
+import java.util.Vector;
+
+import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
+
 import ij.ImagePlus;
 import ij.ImageStack;
 import ij.gui.Arrow;
@@ -14,7 +19,22 @@ public class MotionVectorField_ implements PlugInFilter {
 	private int width, height, depth, widthInBlocks, heightInBlocks, depthMotion, numberOfBlocks;
 	private ImageStack inStack, outStack;
 	//private FloatProcessor outIp;
-	private int blockSize = 8, blockSizeMotion=32;
+	private int blockSize = 32, blockSizeMotion = 32;
+	
+	// Current frame
+	int curFrame = 2;
+	
+	// Vector alternatives for current frame
+	private ArrayList<Vector3D> v_k;
+	
+	// Current vector field
+	private Vector3D[] V_n;
+	
+	// Vector field of previous image
+	private Vector3D[] V_n_previous;
+	
+	//
+	private double g_l;
 	
 
 	public int setup(String arg, ImagePlus imp) {
@@ -64,9 +84,9 @@ public class MotionVectorField_ implements PlugInFilter {
 					tmp.setStyle(Arrow.NOTCHED);
 					forms[i] = tmp;
 
-					// tmp2 = new OvalRoi(xStart, yStart, 6, 6);
+					// tmp2 = new OvalRoi(xStart, yStart, 6, 6);q
 					// forms[i] = tmp2;
-					Arrows.draw(forms[i]);					
+					Arrows.draw(forms[i]);
 				}
 			}
 			Arrows.multiply(255/Arrows.maxValue());
@@ -81,5 +101,34 @@ public class MotionVectorField_ implements PlugInFilter {
 		ImagePlus window = new ImagePlus("Motion Vector Field of" + title, outStack);
 		window.show();
 
+	}
+	
+	private int minimizeCostFunc(int k){
+		
+		return 0;
+	}
+	
+	private double costFunc(int k, int altIndex){
+		
+		return 0;
+	}
+	
+	private double dataTerm (int k, int altIndex){
+		
+		return 0;
+	}
+	
+	private double tempCoherence (int k){
+		
+		return 0;
+	}
+	
+	private double spatialCoherence (int k){
+		
+		return 0;
+	}
+	
+	private void getAlternatives (int k){
+		
 	}
 }
