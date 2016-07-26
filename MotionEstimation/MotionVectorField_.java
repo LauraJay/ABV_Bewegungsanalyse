@@ -27,6 +27,12 @@ public class MotionVectorField_ implements PlugInFilter {
 	// Current frame
 	int curFrame = 2;
 	
+	// Lambda
+	private double lambda;
+	
+	// Lambda_T
+	private double lambda_T;
+	
 	// Vector alternatives for current frame
 	private ArrayList<Vector3D> v_k;
 	
@@ -42,6 +48,9 @@ public class MotionVectorField_ implements PlugInFilter {
 
 	public int setup(String arg, ImagePlus imp) {
 		this.imp = imp;
+		lambda = 1;
+		lambda_T = 1;
+		v_k = new ArrayList<Vector3D>();	
 		return DOES_ALL | NO_CHANGES | STACK_REQUIRED;
 	}
 
@@ -142,10 +151,16 @@ public class MotionVectorField_ implements PlugInFilter {
 		}
 		return minIndex;
 	}
-	
-	private double costFunc(int k, int altIndex){
 		
-		return 0;
+	/**
+	 * Calculates the cost for one block 
+	 *
+	 * @param  k			the index of the current block (starting with 0 in the upper left corner of the image).
+	 * @param  altIndex		the index of the current alternative vector.
+	 * @return      		the calculated cost.
+	 */
+	private double costFunc(int k, int altIndex){		
+		return dataTerm(k, altIndex) + lambda * spatialCoherence(k, altIndex) + lambda_T * tempCoherence (k, altIndex);
 	}
 	
 	private double dataTerm (int k, int altIndex){
