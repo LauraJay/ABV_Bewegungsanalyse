@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.Vector;
 
 import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
@@ -119,10 +120,27 @@ public class MotionVectorField_ implements PlugInFilter {
 
 	}
 	
-	//@ 
+	/**
+	 * Minimizes costFunc 
+	 *
+	 * @param  k	the index of the current block (starting with 0 in the upper left corner of the image).
+	 * @return      the index of the vector with the lowest costs out of the 14 alternatives.
+	 */
 	private int minimizeCostFunc(int k){
-		
-		return 0;
+		Iterator<Vector3D> alternatives = v_k.iterator();
+		double min = Double.MAX_VALUE;
+		double cur = Double.MAX_VALUE;
+		int minIndex = -1;
+		int index = 0;
+		while(alternatives.hasNext()){
+			cur = costFunc(k, index); 
+			if(cur < min){
+				min = cur;
+				minIndex = index;
+			}
+			index++;
+		}
+		return minIndex;
 	}
 	
 	private double costFunc(int k, int altIndex){
