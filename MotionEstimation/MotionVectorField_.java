@@ -22,10 +22,13 @@ public class MotionVectorField_ implements PlugInFilter {
 	//private FloatProcessor outIp;
 	private int blockSize = 8, blockSizeMotion = 32;
 	
-	int iterations = 5;
+	private int iterations = 5;
 	
 	// Current frame
-	int curFrame = 2;
+	private int curFrame = 2;
+	
+	// Exponent for temporal and spatial coherence
+	private double nu = 1.3; 
 	
 	// Lambda
 	private double lambda;
@@ -156,21 +159,46 @@ public class MotionVectorField_ implements PlugInFilter {
 	 * Calculates the cost for one block 
 	 *
 	 * @param  k			the index of the current block (starting with 0 in the upper left corner of the image).
-	 * @param  altIndex		the index of the current alternative vector.
+	 * @param  altIndex		the index of the current alternative vector. 
 	 * @return      		the calculated cost.
 	 */
 	private double costFunc(int k, int altIndex){		
-		return dataTerm(k, altIndex) + lambda * spatialCoherence(k, altIndex) + lambda_T * tempCoherence (k, altIndex);
+		return dataTerm(k) + lambda * spatialCoherence(k, altIndex) + lambda_T * Math.pow(tempCoherence (k, altIndex), nu);
 	}
 	
-	private double dataTerm (int k, int altIndex){
-		
-		return 0;
+	/**
+	 * Calculates the data term of the cost function 
+	 *
+	 * @param  k			the index of the current block (starting with 0 in the upper left corner of the image).
+	 * @return      		the calculated value of the data term.
+	 */
+	private double dataTerm (int k){		
+		ImageProcessor Y_n = inStack.getProcessor(curFrame);
+		ImageProcessor Y_n_previous = inStack.getProcessor(curFrame - 1);
+		int posY = (k / widthInBlocks) * blockSize;
+		int posX = k % widthInBlocks * blockSize;
+		int posYprevious = (int)(posY + V_n[k].getY());
+		int posXprevious = (int)(posX + V_n[k].getX());
+		double result = 0;
+		for(int i = 0; i < blockSize * blockSize; i++){
+			posY = posY + i / blockSize;
+			posX = posX + i % blockSize;
+			posYprevious = posYprevious + i / blockSize;
+			posXprevious = posXprevious + i % blockSize;
+			result += Y_n.getPixel(posX, posY) - Y_n_previous.getPixel(posXprevious, posYprevious);
+		}
+		return result;
 	}
 	
-	private double tempCoherence (int k, int altIndex){
-		
-		return 0;
+	/**
+	 * Calculates the temporal coherence function 
+	 *
+	 * @param  k			the index of the current block (starting with 0 in the upper left corner of the image).
+	 * @param  altIndex		the index of the current alternative vector.
+	 * @return      		the calculated temporal coherence value.
+	 */	
+	private double tempCoherence (int k, int altIndex){		
+		return V_n_previous[k].distance(v_k.get(altIndex));
 	}
 	
 	private double spatialCoherence (int k, int altIndex){
