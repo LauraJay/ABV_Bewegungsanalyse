@@ -201,12 +201,162 @@ public class MotionVectorField_ implements PlugInFilter {
 		return V_n_previous[k].distance(v_k.get(altIndex));
 	}
 	
-	private double spatialCoherence (int k, int altIndex){
-		
-		return 0;
-	}
-	
-	private void getAlternatives (int k){
-		
-	}
+    /**
+     * Calculates the spatial coherence/local energy
+     *
+     * @param k				the index of the current block
+     * @param altIndex		the index of the alternative vector
+     * @return				value of calculated spatial coherence/local energy
+     */
+    private double spatialCoherence (int k, int altIndex){
+        
+        double res = 0;
+        double n;
+        
+        int indices[] = checkNeighbourIndices(k);
+        
+        for(int deltaX = indices[0]; deltaX <=indices[2]; deltaX++){
+            for(int deltaY = indices[1]; deltaY <=indices[3]; deltaY++){
+                
+                if(!(deltaX == 0 && deltaY == 0)){
+                    
+                    Vector3D diff = v_k.get(altIndex).subtract(V_n[k + deltaX + deltaY*widthInBlocks]);
+                    
+                    n = Math.sqrt(diff.getX()*diff.getX() + diff.getY()*diff.getY());
+                    n = Math.pow(n,nu);
+                    
+                    if(deltaX == 0 || deltaY == 0)
+                        g_l = 1;
+                    else
+                        g_l = 0.5;
+                    
+                    res += g_l*n;
+                }
+            }
+        }
+        return res;
+    }
+    
+    /**
+     * Determines the alternative vectors
+     * according to the paper by T. Aach and D. Kunz.
+     * Inner blocks will have 14 alternatives.
+     * Bordering blocks will have less alternatives
+     * depending on their location.
+     *
+     * @param k				the index of the current block
+     * @return				An ArrayList containing the alternative vectors
+     */
+    private ArrayList<Vector3D> getAlternatives (int k){
+        
+        ArrayList<Vector3D> nominees = new ArrayList<Vector3D>();
+        
+        //vector at the same position from the previous frame
+        nominees.add(V_n_previous[k]);
+        
+        int [] indices = checkNeighbourIndices(k);
+        
+        double sumXcomponent = 0.0;
+        double sumYcomponent = 0.0;
+        double d = 0.0;
+        
+        for(int deltaX = indices[0]; deltaX <=indices[2]; deltaX++){
+            for(int deltaY = indices[1]; deltaY <=indices[3]; deltaY++){
+                
+                if(!(deltaX == 0 && deltaY == 0)){
+                    
+                    Vector3D neighbour = V_n[k + deltaX + deltaY*widthInBlocks];
+                    nominees.add(neighbour);
+                    
+                    if(deltaX == 0 || deltaY == 0)
+                        g_l = 1;
+                    else
+                        g_l = 0.5;
+                    
+                    sumXcomponent += g_l*neighbour.getX();
+                    sumXcomponent += g_l*neighbour.getY();
+                    d += g_l;
+                }
+            }
+        }
+        
+        //add vector of weighted average values
+        nominees.add(new Vector3D(sumXcomponent/d,sumYcomponent/d,1));
+        
+        //modification by 0.5 pixels
+        nominees.add(new Vector3D(V_n[k].getX()+0.5,V_n[k].getY(),1));
+        nominees.add(new Vector3D(V_n[k].getX()-0.5,V_n[k].getY(),1));
+        nominees.add(new Vector3D(V_n[k].getX(),V_n[k].getY()+0.5,1));
+        nominees.add(new Vector3D(V_n[k].getX(),V_n[k].getY()-0.5,1));
+        
+        return nominees;
+    }
+    
+    /**
+     * Determines the indices in order to iterate over neighbouring blocks.
+     * Bordering blocks having less than eight neighbours
+     * will result in alternative indices.
+     *
+     * @param k				the index of the current block
+     * @return				Array containing the indices
+     */
+    private int[] checkNeighbourIndices(int k){
+        
+        int[] neighbourIndices = new int[4];
+        
+        neighbourIndices[0] = -1;	//startX
+        neighbourIndices[1] = -1;	//startY
+        neighbourIndices[2] = 1;	//endX
+        neighbourIndices[3] = 1;	//endY
+        
+        //first row
+        if(k/widthInBlocks == 0){
+            neighbourIndices[0] = -1;
+            neighbourIndices[1] = 0;
+            neighbourIndices[2] = 1;
+            neighbourIndices[3] = 1;
+            
+            //left upper corner
+            if(k == 0)
+                neighbourIndices[0] = 0;
+            
+            //right upper corner 
+            if(k == widthInBlocks -1)
+                neighbourIndices[2] = 0;
+        }
+        
+        //last row
+        if(k/widthInBlocks == heightInBlocks -1){
+            neighbourIndices[0] = -1;
+            neighbourIndices[1] = -1;
+            neighbourIndices[2] = 1;
+            neighbourIndices[3] = 0;
+            
+            //left lower corner
+            if(k == 0)
+                neighbourIndices[0] = 0;
+            
+            //right lower corner 
+            if(k == widthInBlocks -1)
+                neighbourIndices[2] = 0;		
+        }
+        
+        //left side
+        if(k/widthInBlocks != 0 && k/widthInBlocks != heightInBlocks -1 && k%widthInBlocks == 0){
+            neighbourIndices[0] = 0;
+            neighbourIndices[1] = -1;
+            neighbourIndices[2] = 1;
+            neighbourIndices[3] = 1;
+        }
+        
+        //right side
+        if(k/widthInBlocks != 0 && k/widthInBlocks != heightInBlocks -1 && k%widthInBlocks == widthInBlocks -1){
+            neighbourIndices[0] = -1;
+            neighbourIndices[1] = -1;
+            neighbourIndices[2] = 0;
+            neighbourIndices[3] = 1;
+        }
+        
+        return neighbourIndices;
+    }
 }
