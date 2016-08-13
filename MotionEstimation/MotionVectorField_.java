@@ -1,6 +1,5 @@
 import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.Vector;
 
 import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
 
@@ -17,9 +16,8 @@ import ij.process.ImageProcessor;
 public class MotionVectorField_ implements PlugInFilter {
 
 	private ImagePlus imp;
-	private int width, height, depth, widthInBlocks, heightInBlocks, depthMotion, numberOfBlocks;
+	private int width, height, depth, widthInBlocks, heightInBlocks, depthMotion, numberOfBlocks,vecFieldWidth, vecFieldHeight;
 	private ImageStack inStack, outStack;
-	// private FloatProcessor outIp;
 	private int blockSize = 8, blockSizeMotion = 32;
 
 	private int iterations = 5;
@@ -67,15 +65,13 @@ public class MotionVectorField_ implements PlugInFilter {
 		depth = inStack.getSize();
 		depthMotion = depth - 1;
 		numberOfBlocks = widthInBlocks * heightInBlocks;
+		vecFieldWidth=width * blockSizeMotion / blockSize;
+		vecFieldHeight=height * blockSizeMotion / blockSize;
 
 		float[][] values = new float[depth][];
-		Roi[] forms = new Roi[numberOfBlocks];
-		Arrow tmp; // motion
-		// OvalRoi tmp2; // no motion
-		outStack = new ImageStack(width * blockSizeMotion / blockSize, height * blockSizeMotion / blockSize);
+		
+		outStack = new ImageStack(vecFieldWidth , vecFieldHeight);
 		FloatProcessor outIp;
-		FloatProcessor Arrows;
-		double xStart, yStart, xEnd, yEnd;
 		int indexAlterMin;
 
 		// read data from Stack
@@ -100,37 +96,12 @@ public class MotionVectorField_ implements PlugInFilter {
 				}
 				V_n_previous=V_n;
 			}
-
-			Arrows = new FloatProcessor(width * 4, height * 4);
-			outIp = new FloatProcessor(width * 4, height * 4);
-			outIp.copyBits(inStack.getProcessor(slice + 1).resize(4 * width), 0, 0, Blitter.COPY);
-			for (int i = 0; i < heightInBlocks; i++) {
-				for (int j = 0; j < widthInBlocks; j++) {
-
-					// estimated motion vector
-					xStart = blockSizeMotion / 2 + j * blockSizeMotion;
-					yStart = blockSizeMotion / 2 + i * blockSizeMotion;
-					xEnd = (blockSizeMotion / 2 + j * blockSizeMotion) + V_n[i * widthInBlocks + j].getX();
-					yEnd = (blockSizeMotion / 2 + i * blockSizeMotion) + V_n[i * widthInBlocks + j].getY();
-
-					tmp = new Arrow(xEnd, yEnd, xStart, yStart);
-					tmp.setStyle(Arrow.NOTCHED);
-					forms[i] = tmp;
-
-					// tmp2 = new OvalRoi(xStart, yStart, 6, 6);q
-					// forms[i] = tmp2;
-					Arrows.draw(forms[i]);
-				}
-			}
-			Arrows.multiply(255 / Arrows.maxValue());
-			outIp.copyBits(Arrows, 0, 0, Blitter.COPY_ZERO_TRANSPARENT);
+			
+			outIp=generateMVFPerSlice(slice);
 			outStack.addSlice(outIp);
 		}
 
-		String imgTitle = imp.getTitle();
-		int l = imgTitle.length();
-		int k = imgTitle.indexOf(" ");
-		String title = k == -1 ? imgTitle : imgTitle.substring(60, l);
+		String title=generateTitle();
 		ImagePlus window = new ImagePlus("Motion Vector Field of" + title, outStack);
 		window.show();
 
@@ -377,5 +348,56 @@ public class MotionVectorField_ implements PlugInFilter {
 		}
 
 		return neighbourIndices;
+	}
+	
+	
+	FloatProcessor generateMVFPerSlice(int slice){
+		FloatProcessor Arrows,out;
+		double xStart, yStart, xEnd, yEnd;
+		Roi[] forms = new Roi[numberOfBlocks];
+		Arrow tmp; // motion
+		OvalRoi tmp2; // no motion
+		double x,y;
+		
+		Arrows = new FloatProcessor(width * 4, height * 4);
+		out = new FloatProcessor(width * 4, height * 4);
+		out.copyBits(inStack.getProcessor(slice + 1).resize(4 * width), 0, 0, Blitter.COPY);
+		for (int i = 0; i < heightInBlocks; i++) {
+			for (int j = 0; j < widthInBlocks; j++) {
+				
+				x=V_n[i * widthInBlocks + j].getX();
+				y=V_n[i * widthInBlocks + j].getY();
+				
+				// estimated motion vector
+				xStart = blockSizeMotion / 2 + j * blockSizeMotion;
+				yStart = blockSizeMotion / 2 + i * blockSizeMotion;
+				xEnd = (blockSizeMotion / 2 + j * blockSizeMotion) + x;
+				yEnd = (blockSizeMotion / 2 + i * blockSizeMotion) + y;
+				
+				if(Math.abs(x)+Math.abs(y)<=0.1){
+					tmp2 = new OvalRoi(xEnd, yEnd, 6, 6);
+					forms[i] = tmp2;
+				}
+				
+				else{
+					tmp = new Arrow(xEnd, yEnd, xStart, yStart);
+					tmp.setStyle(Arrow.NOTCHED);
+					forms[i] = tmp;
+				}
+
+				Arrows.draw(forms[i]);
+			}
+		}
+		Arrows.multiply(255 / Arrows.maxValue());
+		out.copyBits(Arrows, 0, 0, Blitter.COPY_ZERO_TRANSPARENT);
+		return out;
+	}
+	
+	String generateTitle(){
+		String imgTitle = imp.getTitle();
+		int l = imgTitle.length();
+		int k = imgTitle.indexOf(" ");
+		String t = k == -1 ? imgTitle : imgTitle.substring(60, l);
+		return t;
 	}
 }
