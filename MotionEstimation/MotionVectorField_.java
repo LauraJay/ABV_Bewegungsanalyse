@@ -18,8 +18,10 @@ public class MotionVectorField_ implements PlugInFilter {
 	private ImagePlus imp;
 	private int width, height, depth, widthInBlocks, heightInBlocks, depthMotion, numberOfBlocks,vecFieldWidth, vecFieldHeight;
 	private ImageStack inStack, outStack;
+	//Blocksizes
 	private int blockSize = 8, blockSizeMotion = 32;
-
+	
+	// Numbers of Iterations
 	private int iterations = 5;
 
 	// Current frame
@@ -81,9 +83,15 @@ public class MotionVectorField_ implements PlugInFilter {
 
 		// create a first vector field, where all vectors are equally (1,1,1)
 		V_n_previous = new Vector3D[widthInBlocks * heightInBlocks];
+		V_n = new Vector3D[widthInBlocks * heightInBlocks];
 		for (int i = 0; i < widthInBlocks * heightInBlocks; i++) {
-			V_n_previous[0] = new Vector3D(1, 1, 1);
+			V_n_previous[i] = new Vector3D(1, 1, 1);
+			V_n[i] = new Vector3D(1, 1, 1);
 		}
+//		V_n = new Vector3D[widthInBlocks * heightInBlocks];
+//		for (int i = 0; i < widthInBlocks * heightInBlocks; i++) {
+//			V_n[0] = new Vector3D(1, 1, 1);
+//		}
 
 		// System.out.println(v_k.size());
 		// calculate and write motion vector field
@@ -102,7 +110,7 @@ public class MotionVectorField_ implements PlugInFilter {
 		}
 
 		String title=generateTitle();
-		ImagePlus window = new ImagePlus("Motion Vector Field of" + title, outStack);
+		ImagePlus window = new ImagePlus("Motion Vector Field of " + title, outStack);
 		window.show();
 
 	}
