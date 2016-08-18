@@ -50,8 +50,8 @@ public class MotionVectorField_ implements PlugInFilter {
 
 	public int setup(String arg, ImagePlus imp) {
 		this.imp = imp;
-		lambda = 1;
-		lambda_T = 1;
+		lambda = 0.5;
+		lambda_T = 0.5;
 		v_k = new ArrayList<Vector3D>();
 		return DOES_ALL | NO_CHANGES | STACK_REQUIRED;
 	}
@@ -102,14 +102,14 @@ public class MotionVectorField_ implements PlugInFilter {
 					indexAlterMin = minimizeCostFunc(k);
 					V_n[k] = v_k.get(indexAlterMin);
 				}
-				V_n_previous=V_n;
+				V_n_previous = V_n;
 			}
 
-			outIp=generateMVFPerSlice(slice);
+			outIp = generateMVFPerSlice(slice);
 			outStack.addSlice(outIp);
 		}
 
-		String title=generateTitle();
+		String title = generateTitle();
 		ImagePlus window = new ImagePlus("Motion Vector Field of " + title, outStack);
 		window.show();
 
@@ -131,15 +131,17 @@ public class MotionVectorField_ implements PlugInFilter {
 		int minIndex = -1;
 		int index = 0;
 
-		for(Vector3D vec : v_k){				// use for each instead of iterator
-//		while (alternatives.hasNext()) {
+//		for(Vector3D vec : v_k){				// use for each instead of iterator
+		while (alternatives.hasNext()) {
 			cur = costFunc(k, index);
 			if (cur < min) {
 				min = cur;
 				minIndex = index;
 			}
+			alternatives.next();
 			index++;
 		}
+		System.out.println(minIndex);
 		return minIndex;
 	}
 
@@ -154,8 +156,9 @@ public class MotionVectorField_ implements PlugInFilter {
 	 * @return the calculated cost.
 	 */
 	private double costFunc(int k, int altIndex) {
-		return dataTerm(k) + lambda * spatialCoherence(k, altIndex)
-				+ lambda_T * Math.pow(tempCoherence(k, altIndex), nu);
+		return 	dataTerm(k) * dataTerm(k)
+				+ lambda * spatialCoherence(k, altIndex)
+				+ lambda_T * tempCoherence(k, altIndex);
 	}
 
 	/**
@@ -195,7 +198,7 @@ public class MotionVectorField_ implements PlugInFilter {
 	 * @return the calculated temporal coherence value.
 	 */
 	private double tempCoherence(int k, int altIndex) {
-		return V_n_previous[k].distance(v_k.get(altIndex));
+		return Math.pow(V_n_previous[k].distance(v_k.get(altIndex)), nu);
 	}
 
 	/**
