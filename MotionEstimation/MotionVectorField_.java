@@ -14,10 +14,15 @@ import ij.process.FloatProcessor;
 import ij.process.ImageProcessor;
 
 public class MotionVectorField_ implements PlugInFilter {
-
+	//
 	private ImagePlus imp;
+	
+	//Dimensions
 	private int width, height, depth, widthInBlocks, heightInBlocks, depthMotion, numberOfBlocks,vecFieldWidth, vecFieldHeight;
+	
+	//
 	private ImageStack inStack, outStack;
+	
 	//Blocksizes
 	private int blockSize = 8, blockSizeMotion = 32;
 
@@ -35,6 +40,9 @@ public class MotionVectorField_ implements PlugInFilter {
 
 	// Lambda_T
 	private double lambda_T;
+	
+	//Picturedata Yn [frame][width*height]
+	private float[][] values;
 
 	// Vector alternatives for current frame
 	private ArrayList<Vector3D> v_k;
@@ -45,7 +53,7 @@ public class MotionVectorField_ implements PlugInFilter {
 	// Vector field of previous image
 	private Vector3D[] V_n_previous;
 
-	//
+	//weighting factor
 	private double g_l;
 
 	public int setup(String arg, ImagePlus imp) {
@@ -70,7 +78,7 @@ public class MotionVectorField_ implements PlugInFilter {
 		vecFieldWidth=width * blockSizeMotion / blockSize;
 		vecFieldHeight=height * blockSizeMotion / blockSize;
 
-		float[][] values = new float[depth][];
+		values = new float[depth][];
 
 		outStack = new ImageStack(vecFieldWidth , vecFieldHeight);
 		FloatProcessor outIp;
@@ -144,6 +152,7 @@ public class MotionVectorField_ implements PlugInFilter {
 			alternatives.next();
 			index++;
 		}
+
 		return minIndex;
 	}
 
@@ -161,6 +170,7 @@ public class MotionVectorField_ implements PlugInFilter {
 		return 	dataTerm(k, altIndex) * dataTerm(k, altIndex)
 				+ lambda * spatialCoherence(k, altIndex)
 				+ lambda_T * tempCoherence(k, altIndex);
+		
 	}
 
 	/**
