@@ -20,7 +20,7 @@ public class MotionVectorField_ implements PlugInFilter {
 	private ImageStack inStack, outStack;
 	//Blocksizes
 	private int blockSize = 8, blockSizeMotion = 32;
-	
+
 	// Numbers of Iterations
 	private int iterations = 5;
 
@@ -71,7 +71,7 @@ public class MotionVectorField_ implements PlugInFilter {
 		vecFieldHeight=height * blockSizeMotion / blockSize;
 
 		float[][] values = new float[depth][];
-		
+
 		outStack = new ImageStack(vecFieldWidth , vecFieldHeight);
 		FloatProcessor outIp;
 		int indexAlterMin;
@@ -104,7 +104,7 @@ public class MotionVectorField_ implements PlugInFilter {
 				}
 				V_n_previous=V_n;
 			}
-			
+
 			outIp=generateMVFPerSlice(slice);
 			outStack.addSlice(outIp);
 		}
@@ -130,7 +130,9 @@ public class MotionVectorField_ implements PlugInFilter {
 		double cur = Double.MAX_VALUE;
 		int minIndex = -1;
 		int index = 0;
-		while (alternatives.hasNext()) {
+
+		for(Vector3D vec : v_k){				// use for each instead of iterator
+//		while (alternatives.hasNext()) {
 			cur = costFunc(k, index);
 			if (cur < min) {
 				min = cur;
@@ -334,7 +336,7 @@ public class MotionVectorField_ implements PlugInFilter {
 				neighbourIndices[0] = 0;
 
 			// right lower corner
-			if (k == widthInBlocks - 1)
+			if (k == numberOfBlocks-1)				// 'numberOfBlocks' instead of 'widthInBlocks'
 				neighbourIndices[2] = 0;
 		}
 
@@ -357,8 +359,8 @@ public class MotionVectorField_ implements PlugInFilter {
 
 		return neighbourIndices;
 	}
-	
-	
+
+
 	FloatProcessor generateMVFPerSlice(int slice){
 		FloatProcessor Arrows,out;
 		double xStart, yStart, xEnd, yEnd;
@@ -366,27 +368,27 @@ public class MotionVectorField_ implements PlugInFilter {
 		Arrow tmp; // motion
 		OvalRoi tmp2; // no motion
 		double x,y;
-		
+
 		Arrows = new FloatProcessor(width * 4, height * 4);
 		out = new FloatProcessor(width * 4, height * 4);
 		out.copyBits(inStack.getProcessor(slice + 1).resize(4 * width), 0, 0, Blitter.COPY);
 		for (int i = 0; i < heightInBlocks; i++) {
 			for (int j = 0; j < widthInBlocks; j++) {
-				
+
 				x=V_n[i * widthInBlocks + j].getX();
 				y=V_n[i * widthInBlocks + j].getY();
-				
+
 				// estimated motion vector
 				xStart = blockSizeMotion / 2 + j * blockSizeMotion;
 				yStart = blockSizeMotion / 2 + i * blockSizeMotion;
 				xEnd = (blockSizeMotion / 2 + j * blockSizeMotion) + x;
 				yEnd = (blockSizeMotion / 2 + i * blockSizeMotion) + y;
-				
+
 				if(Math.abs(x)+Math.abs(y)<=0.1){
 					tmp2 = new OvalRoi(xEnd, yEnd, 6, 6);
 					forms[i] = tmp2;
 				}
-				
+
 				else{
 					tmp = new Arrow(xEnd, yEnd, xStart, yStart);
 					tmp.setStyle(Arrow.NOTCHED);
@@ -400,7 +402,7 @@ public class MotionVectorField_ implements PlugInFilter {
 		out.copyBits(Arrows, 0, 0, Blitter.COPY_ZERO_TRANSPARENT);
 		return out;
 	}
-	
+
 	String generateTitle(){
 		String imgTitle = imp.getTitle();
 		int l = imgTitle.length();
