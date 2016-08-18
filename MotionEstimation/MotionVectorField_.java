@@ -25,7 +25,7 @@ public class MotionVectorField_ implements PlugInFilter {
 	private int iterations = 5;
 
 	// Current frame
-	private int curFrame = 2;
+	private int curFrame = 0;
 
 	// Exponent for temporal and spatial coherence
 	private double nu = 1.3;
@@ -96,13 +96,16 @@ public class MotionVectorField_ implements PlugInFilter {
 		// System.out.println(v_k.size());
 		// calculate and write motion vector field
 		for (int slice = 0; slice < depthMotion; slice++) {
-			for (int i = 0; i < iterations; i++) {
-				for (int k = 0; k < numberOfBlocks; k++) {
-					v_k = getAlternatives(k);
-					indexAlterMin = minimizeCostFunc(k);
-					V_n[k] = v_k.get(indexAlterMin);
+			if(slice!=0){
+				curFrame = slice;
+				for (int i = 0; i < iterations; i++) {
+					for (int k = 0; k < numberOfBlocks; k++) {
+						v_k = getAlternatives(k);
+						indexAlterMin = minimizeCostFunc(k);
+						V_n[k] = v_k.get(indexAlterMin);
+					}
+					V_n_previous = V_n;
 				}
-				V_n_previous = V_n;
 			}
 
 			outIp = generateMVFPerSlice(slice);
@@ -141,7 +144,6 @@ public class MotionVectorField_ implements PlugInFilter {
 			alternatives.next();
 			index++;
 		}
-		System.out.println(minIndex);
 		return minIndex;
 	}
 
@@ -156,7 +158,7 @@ public class MotionVectorField_ implements PlugInFilter {
 	 * @return the calculated cost.
 	 */
 	private double costFunc(int k, int altIndex) {
-		return 	dataTerm(k) * dataTerm(k)
+		return 	dataTerm(k, altIndex) * dataTerm(k, altIndex)
 				+ lambda * spatialCoherence(k, altIndex)
 				+ lambda_T * tempCoherence(k, altIndex);
 	}
@@ -169,9 +171,9 @@ public class MotionVectorField_ implements PlugInFilter {
 	 *            left corner of the image).
 	 * @return the calculated value of the data term.
 	 */
-	private double dataTerm(int k) {
-		ImageProcessor Y_n = inStack.getProcessor(curFrame);
-		ImageProcessor Y_n_previous = inStack.getProcessor(curFrame - 1);
+	private double dataTerm(int k, int altIndex) {
+		float Y_n = values[curFrame][];
+		float Y_n_previous = values[curFrame-1][];
 		int posY = (k / widthInBlocks) * blockSize;
 		int posX = k % widthInBlocks * blockSize;
 		int posYprevious = (int) (posY + V_n[k].getY());
@@ -182,7 +184,7 @@ public class MotionVectorField_ implements PlugInFilter {
 			posX = posX + i % blockSize;
 			posYprevious = posYprevious + i / blockSize;
 			posXprevious = posXprevious + i % blockSize;
-			result += Y_n.getPixel(posX, posY) - Y_n_previous.getPixel(posXprevious, posYprevious);
+			result += Y_n[posX * posY] - Y_n_previous[posXprevious * posYprevious];
 		}
 		return result;
 	}
