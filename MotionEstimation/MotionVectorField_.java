@@ -176,25 +176,40 @@ public class MotionVectorField_ implements PlugInFilter {
 	/**
 	 * Calculates the data term of the cost function
 	 *
-	 * @param k
-	 *            the index of the current block (starting with 0 in the upper
+	 * @param k   the index of the current block (starting with 0 in the upper
 	 *            left corner of the image).
+	 *            
+	 * @param altIndex
+	 *            the index of the current alternative vector.
+	 *            
 	 * @return the calculated value of the data term.
 	 */
 	private double dataTerm(int k, int altIndex) {
-		float Y_n = values[curFrame][];
-		float Y_n_previous = values[curFrame-1][];
+		float[] Y_n = values[curFrame];
+		float[] Y_n_previous = values[curFrame-1];
 		int posY = (k / widthInBlocks) * blockSize;
 		int posX = k % widthInBlocks * blockSize;
-		int posYprevious = (int) (posY + V_n[k].getY());
-		int posXprevious = (int) (posX + V_n[k].getX());
+		int posYprevious = (int) (posY + v_k.get(altIndex).getY());
+		int posXprevious = (int) (posX + v_k.get(altIndex).getX());
+		int posYcur = 0, posXcur = 0;
+		int posYpreviousCur = 0, posXpreviousCur = 0;
+		int imagePreviousAddress = 0;
 		double result = 0;
 		for (int i = 0; i < blockSize * blockSize; i++) {
-			posY = posY + i / blockSize;
-			posX = posX + i % blockSize;
-			posYprevious = posYprevious + i / blockSize;
-			posXprevious = posXprevious + i % blockSize;
-			result += Y_n[posX * posY] - Y_n_previous[posXprevious * posYprevious];
+			posYcur = posY + i / blockSize;
+			posXcur = posX + i % blockSize;
+			posYpreviousCur = posYprevious + i / blockSize;
+			posXpreviousCur = posXprevious + i % blockSize;
+			
+			imagePreviousAddress = posYpreviousCur * width + posXpreviousCur;
+			
+			// Edge protection (position + motion vector could overstep image boundaries)
+			if(imagePreviousAddress > width * height - 1)
+				imagePreviousAddress = width * height - 1;
+			if(imagePreviousAddress < 0)
+				imagePreviousAddress = 0;			
+			
+			result += Y_n[posYcur * width + posXcur] - Y_n_previous[imagePreviousAddress];
 		}
 		return result;
 	}
