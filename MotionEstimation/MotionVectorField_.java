@@ -15,16 +15,14 @@ import ij.process.FloatProcessor;
 import ij.process.ImageProcessor;
 
 public class MotionVectorField_ implements PlugInFilter {
-	//
+	// Inputs and output
 	private ImagePlus imp;
-	
-	//Dimensions
-	private int width, height, depth, widthInBlocks, heightInBlocks, depthMotion, numberOfBlocks,vecFieldWidth, vecFieldHeight;
-	
-	//
 	private ImageStack inStack, outStack;
 	
-	//Blocksizes
+	// Dimensions
+	private int width, height, depth, widthInBlocks, heightInBlocks, depthMotion, numberOfBlocks,vecFieldWidth, vecFieldHeight;
+	
+	// Blocksizes
 	private int blockSize = 8, blockSizeMotion = 32;
 
 	// Numbers of Iterations
@@ -42,7 +40,7 @@ public class MotionVectorField_ implements PlugInFilter {
 	// Lambda_T
 	private double lambda_T;
 	
-	//Picturedata Yn [frame][width*height]
+	// Picture data Y_n [frame][width * height]
 	private float[][] values;
 
 	// Vector alternatives for current frame
@@ -54,7 +52,7 @@ public class MotionVectorField_ implements PlugInFilter {
 	// Vector field of previous image
 	private Vector3D[] V_n_previous;
 
-	//weighting factor
+	// Weighting factor
 	private double g_l;
 
 	public int setup(String arg, ImagePlus imp) {
