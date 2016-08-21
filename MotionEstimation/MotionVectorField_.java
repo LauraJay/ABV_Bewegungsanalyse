@@ -1,3 +1,4 @@
+import java.awt.Color;
 import java.util.ArrayList;
 import java.util.Iterator;
 
@@ -93,13 +94,10 @@ public class MotionVectorField_ implements PlugInFilter {
 		V_n_previous = new Vector3D[widthInBlocks * heightInBlocks];
 		V_n = new Vector3D[widthInBlocks * heightInBlocks];
 		for (int i = 0; i < widthInBlocks * heightInBlocks; i++) {
-			V_n_previous[i] = new Vector3D(1, 1, 1);
-			V_n[i] = new Vector3D(1, 1, 1);
+			V_n_previous[i] = new Vector3D(0, 0, 1);
+			V_n[i] = new Vector3D(0, 0, 1);
 		}
-//		V_n = new Vector3D[widthInBlocks * heightInBlocks];
-//		for (int i = 0; i < widthInBlocks * heightInBlocks; i++) {
-//			V_n[0] = new Vector3D(1, 1, 1);
-//		}
+
 
 		// System.out.println(v_k.size());
 		// calculate and write motion vector field
