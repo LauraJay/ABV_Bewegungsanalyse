@@ -185,15 +185,20 @@ public class MotionVectorField_ implements PlugInFilter {
 	 * @return the calculated value of the data term.
 	 */
 	private double dataTerm(int k, int altIndex) {
+		// Current frame
 		float[] Y_n = values[curFrame];
-		float[] Y_n_previous = values[curFrame-1];
+		// Previous frame
+		float[] Y_n_previous = values[curFrame - 1];
+		// Pixel starting positions calculated from k
 		int posY = (k / widthInBlocks) * blockSize;
 		int posX = k % widthInBlocks * blockSize;
 		int posYprevious = (int) (posY + v_k.get(altIndex).getY());
 		int posXprevious = (int) (posX + v_k.get(altIndex).getX());
+		// Pixel positions for cost calculation
 		int posYcur = 0, posXcur = 0;
 		int posYpreviousCur = 0, posXpreviousCur = 0;
 		int imagePreviousAddress = 0;
+		
 		double result = 0;
 		for (int i = 0; i < blockSize * blockSize; i++) {
 			posYcur = posY + i / blockSize;
