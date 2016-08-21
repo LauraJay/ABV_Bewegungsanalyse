@@ -117,7 +117,6 @@ public class MotionVectorField_ implements PlugInFilter {
 		String title = generateTitle();
 		ImagePlus window = new ImagePlus("Motion Vector Field of " + title, outStack);
 		window.show();
-
 	}
 
 	/**
@@ -136,7 +135,6 @@ public class MotionVectorField_ implements PlugInFilter {
 		int minIndex = -1;
 		int index = 0;
 
-//		for(Vector3D vec : v_k){				// use for each instead of iterator
 		while (alternatives.hasNext()) {
 			cur = costFunc(k, index);
 			if (cur < min) {
@@ -161,10 +159,14 @@ public class MotionVectorField_ implements PlugInFilter {
 	 * @return the calculated cost.
 	 */
 	private double costFunc(int k, int altIndex) {
-		return 	dataTerm(k, altIndex) * dataTerm(k, altIndex)
-				+ lambda * spatialCoherence(k, altIndex)
-				+ lambda_T * tempCoherence(k, altIndex);
+		double dataTerm = dataTerm(k, altIndex) * dataTerm(k, altIndex); 
+		double spatialCoherence = lambda * spatialCoherence(k, altIndex); 
+		double tempCoherence = lambda_T * tempCoherence(k, altIndex);
+//		System.out.println("dataTerm: " + dataTerm);
+//		System.out.println("Spatial: " + spatialCoherence);
+//		System.out.println("Temporal: " + tempCoherence);
 		
+		return dataTerm + spatialCoherence + tempCoherence;
 	}
 
 	/**
