@@ -65,7 +65,7 @@ public class MotionVectorField_ implements PlugInFilter {
 
 	public void run(ImageProcessor ip) {
 
-		// dimensions stack
+		// Initializations
 		width = ip.getWidth();
 		widthInBlocks = width / blockSize;
 		height = ip.getHeight();
@@ -74,8 +74,8 @@ public class MotionVectorField_ implements PlugInFilter {
 		depth = inStack.getSize();
 		depthMotion = depth - 1;
 		numberOfBlocks = widthInBlocks * heightInBlocks;
-		vecFieldWidth=width * blockSizeMotion / blockSize;
-		vecFieldHeight=height * blockSizeMotion / blockSize;
+		vecFieldWidth = width * blockSizeMotion / blockSize;
+		vecFieldHeight = height * blockSizeMotion / blockSize;
 
 		values = new float[depth][];
 
@@ -83,12 +83,12 @@ public class MotionVectorField_ implements PlugInFilter {
 		FloatProcessor outIp;
 		int indexAlterMin;
 
-		// read data from Stack
+		// Read data from Stack
 		for (int slice = 0; slice < depth; slice++) {
 			values[slice] = (float[]) inStack.getProcessor(slice + 1).getPixels();
 		}
 
-		// create a first vector field, where all vectors are equally (1,1,1)
+		// Create a first vector field, where all vectors are equal (0, 0, 1)
 		V_n_previous = new Vector3D[widthInBlocks * heightInBlocks];
 		V_n = new Vector3D[widthInBlocks * heightInBlocks];
 		for (int i = 0; i < widthInBlocks * heightInBlocks; i++) {
@@ -96,9 +96,7 @@ public class MotionVectorField_ implements PlugInFilter {
 			V_n[i] = new Vector3D(0, 0, 1);
 		}
 
-
-		// System.out.println(v_k.size());
-		// calculate and write motion vector field
+		// Calculate and write motion vector field
 		for (int slice = 0; slice < depthMotion; slice++) {
 			if(slice!=0){
 				curFrame = slice;
