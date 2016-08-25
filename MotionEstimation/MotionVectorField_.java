@@ -1,7 +1,7 @@
 import java.util.ArrayList;
 import java.util.Iterator;
 
-import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
+import org.apache.commons.math3.geometry.euclidean.twod.Vector2D;
 
 import ij.ImagePlus;
 import ij.ImageStack;
@@ -43,13 +43,13 @@ public class MotionVectorField_ implements PlugInFilter {
 	private float[][] values;
 
 	// Vector alternatives for current frame
-	private ArrayList<Vector3D> v_k;
+	private ArrayList<Vector2D> v_k;
 
 	// Current vector field
-	private Vector3D[] V_n;
+	private Vector2D[] V_n;
 
 	// Vector field of previous image
-	private Vector3D[] V_n_previous;
+	private Vector2D[] V_n_previous;
 
 	// Weighting factor
 	private double g_l;
@@ -58,7 +58,7 @@ public class MotionVectorField_ implements PlugInFilter {
 		this.imp = imp;
 		lambda = 0.5;
 		lambda_T = 0.5;
-		v_k = new ArrayList<Vector3D>();
+		v_k = new ArrayList<Vector2D>();
 		return DOES_ALL | NO_CHANGES | STACK_REQUIRED;
 	}
 
@@ -88,10 +88,10 @@ public class MotionVectorField_ implements PlugInFilter {
 		}
 
 		// Create a first vector field, where all vectors are equal (0, 0, 1)
-		V_n_previous = new Vector3D[widthInBlocks * heightInBlocks];
-		V_n = new Vector3D[widthInBlocks * heightInBlocks];
+		V_n_previous = new Vector2D[widthInBlocks * heightInBlocks];
+		V_n = new Vector2D[widthInBlocks * heightInBlocks];
 		for (int i = 0; i < widthInBlocks * heightInBlocks; i++) {
-			V_n[i] = new Vector3D(0, 0, 1);
+			V_n[i] = new Vector2D(0, 0);
 		}
 
 		// Calculate and write motion vector field
@@ -127,7 +127,7 @@ public class MotionVectorField_ implements PlugInFilter {
 	 *         alternatives.
 	 */
 	private int minimizeCostFunc(int k) {
-		Iterator<Vector3D> alternatives = v_k.iterator();
+		Iterator<Vector2D> alternatives = v_k.iterator();
 		double min = Double.MAX_VALUE;
 		double cur = Double.MAX_VALUE;
 		int minIndex = -1;
@@ -248,7 +248,7 @@ public class MotionVectorField_ implements PlugInFilter {
 
 				if (!(deltaX == 0 && deltaY == 0)) {
 
-					Vector3D diff = v_k.get(altIndex).subtract(V_n[k + deltaX + deltaY * widthInBlocks]);
+					Vector2D diff = v_k.get(altIndex).subtract(V_n[k + deltaX + deltaY * widthInBlocks]);
 
 					n = Math.sqrt(diff.getX() * diff.getX() + diff.getY() * diff.getY());
 					n = Math.pow(n, nu);
@@ -274,9 +274,9 @@ public class MotionVectorField_ implements PlugInFilter {
 	 *            the index of the current block
 	 * @return An ArrayList containing the alternative vectors
 	 */
-	private ArrayList<Vector3D> getAlternatives(int k) {
+	private ArrayList<Vector2D> getAlternatives(int k) {
 
-		ArrayList<Vector3D> nominees = new ArrayList<Vector3D>();
+		ArrayList<Vector2D> nominees = new ArrayList<Vector2D>();
 
 		// vector at the same position from the previous frame
 		nominees.add(V_n_previous[k]);
@@ -292,7 +292,7 @@ public class MotionVectorField_ implements PlugInFilter {
 
 				if (!(deltaX == 0 && deltaY == 0)) {
 
-					Vector3D neighbour = V_n[k + deltaX + deltaY * widthInBlocks];
+					Vector2D neighbour = V_n[k + deltaX + deltaY * widthInBlocks];
 					nominees.add(neighbour);
 
 					if (deltaX == 0 || deltaY == 0)
@@ -308,13 +308,13 @@ public class MotionVectorField_ implements PlugInFilter {
 		}
 
 		// add vector of weighted average values
-		nominees.add(new Vector3D(sumXcomponent / d, sumYcomponent / d, 1));
+		nominees.add(new Vector2D(sumXcomponent / d, sumYcomponent / d));
 
 		// modification by 0.5 pixels
-		nominees.add(new Vector3D(V_n[k].getX() + 0.5, V_n[k].getY(), 1));
-		nominees.add(new Vector3D(V_n[k].getX() - 0.5, V_n[k].getY(), 1));
-		nominees.add(new Vector3D(V_n[k].getX(), V_n[k].getY() + 0.5, 1));
-		nominees.add(new Vector3D(V_n[k].getX(), V_n[k].getY() - 0.5, 1));
+		nominees.add(new Vector2D(V_n[k].getX() + 0.5, V_n[k].getY()));
+		nominees.add(new Vector2D(V_n[k].getX() - 0.5, V_n[k].getY()));
+		nominees.add(new Vector2D(V_n[k].getX(), V_n[k].getY() + 0.5));
+		nominees.add(new Vector2D(V_n[k].getX(), V_n[k].getY() - 0.5));
 
 		return nominees;
 	}
