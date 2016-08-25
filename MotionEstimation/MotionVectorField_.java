@@ -157,10 +157,12 @@ public class MotionVectorField_ implements PlugInFilter {
 	 * @return the calculated cost.
 	 */
 	private double costFunc(int k, int altIndex) {
-		double dataTerm = dataTerm(k, altIndex) * dataTerm(k, altIndex); 
+		double dataTerm = dataTerm(k, altIndex) * dataTerm(k, altIndex);
+//		double dataTerm1 = Math.abs(dataTerm(k, altIndex));
 		double spatialCoherence = lambda * spatialCoherence(k, altIndex); 
 		double tempCoherence = lambda_T * tempCoherence(k, altIndex);
 //		System.out.println("dataTerm: " + dataTerm);
+//		System.out.println("dataTerm1: " + dataTerm1);
 //		System.out.println("Spatial: " + spatialCoherence);
 //		System.out.println("Temporal: " + tempCoherence);
 		
