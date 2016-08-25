@@ -1,4 +1,3 @@
-import java.awt.Color;
 import java.util.ArrayList;
 import java.util.Iterator;
 
@@ -92,7 +91,6 @@ public class MotionVectorField_ implements PlugInFilter {
 		V_n_previous = new Vector3D[widthInBlocks * heightInBlocks];
 		V_n = new Vector3D[widthInBlocks * heightInBlocks];
 		for (int i = 0; i < widthInBlocks * heightInBlocks; i++) {
-			V_n_previous[i] = new Vector3D(0, 0, 1);
 			V_n[i] = new Vector3D(0, 0, 1);
 		}
 
@@ -101,12 +99,12 @@ public class MotionVectorField_ implements PlugInFilter {
 			if(slice!=0){
 				curFrame = slice;
 				for (int i = 0; i < iterations; i++) {
+					V_n_previous = V_n;
 					for (int k = 0; k < numberOfBlocks; k++) {
 						v_k = getAlternatives(k);
 						indexAlterMin = minimizeCostFunc(k);
 						V_n[k] = v_k.get(indexAlterMin);
 					}
-					V_n_previous = V_n;
 				}
 			}
 
