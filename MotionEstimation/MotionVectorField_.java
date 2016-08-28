@@ -17,10 +17,10 @@ public class MotionVectorField_ implements PlugInFilter {
 	// Inputs and output
 	private ImagePlus imp;
 	private ImageStack inStack, outStack;
-	
+
 	// Dimensions
 	private int width, height, depth, widthInBlocks, heightInBlocks, depthMotion, numberOfBlocks,vecFieldWidth, vecFieldHeight;
-	
+
 	// Blocksizes
 	private int blockSize = 8, blockSizeMotion = 32;
 
@@ -38,7 +38,7 @@ public class MotionVectorField_ implements PlugInFilter {
 
 	// Lambda_T
 	private double lambda_T;
-	
+
 	// Picture data Y_n [frame][width * height]
 	private float[][] values;
 
@@ -159,13 +159,13 @@ public class MotionVectorField_ implements PlugInFilter {
 	private double costFunc(int k, int altIndex) {
 		double dataTerm = dataTerm(k, altIndex) * dataTerm(k, altIndex);
 //		double dataTerm1 = Math.abs(dataTerm(k, altIndex));
-		double spatialCoherence = lambda * spatialCoherence(k, altIndex); 
+		double spatialCoherence = lambda * spatialCoherence(k, altIndex);
 		double tempCoherence = lambda_T * tempCoherence(k, altIndex);
 //		System.out.println("dataTerm: " + dataTerm);
 //		System.out.println("dataTerm1: " + dataTerm1);
 //		System.out.println("Spatial: " + spatialCoherence);
 //		System.out.println("Temporal: " + tempCoherence);
-		
+
 		return dataTerm + spatialCoherence + tempCoherence;
 	}
 
@@ -174,46 +174,64 @@ public class MotionVectorField_ implements PlugInFilter {
 	 *
 	 * @param k   the index of the current block (starting with 0 in the upper
 	 *            left corner of the image).
-	 *            
+	 *
 	 * @param altIndex
 	 *            the index of the current alternative vector.
-	 *            
+	 *
 	 * @return the calculated value of the data term.
 	 */
-	private double dataTerm(int k, int altIndex) {
-		// Current frame
-		float[] Y_n = values[curFrame];
-		// Previous frame
-		float[] Y_n_previous = values[curFrame - 1];
-		// Pixel starting positions calculated from k
-		int posY = (k / widthInBlocks) * blockSize;
-		int posX = k % widthInBlocks * blockSize;
-		int posYprevious = (int) (posY + v_k.get(altIndex).getY());
-		int posXprevious = (int) (posX + v_k.get(altIndex).getX());
-		// Pixel positions for cost calculation
-		int posYcur = 0, posXcur = 0;
-		int posYpreviousCur = 0, posXpreviousCur = 0;
-		int imagePreviousAddress = 0;
-		
-		double result = 0;
-		for (int i = 0; i < blockSize * blockSize; i++) {
-			posYcur = posY + i / blockSize;
-			posXcur = posX + i % blockSize;
-			posYpreviousCur = posYprevious + i / blockSize;
-			posXpreviousCur = posXprevious + i % blockSize;
-			
-			imagePreviousAddress = posYpreviousCur * width + posXpreviousCur;
-			
-			// Edge protection (position + motion vector could overstep image boundaries)
-			if(imagePreviousAddress > width * height - 1)
-				imagePreviousAddress = width * height - 1;
-			if(imagePreviousAddress < 0)
-				imagePreviousAddress = 0;			
-			
-			result += Y_n[posYcur * width + posXcur] - Y_n_previous[imagePreviousAddress];
-		}
-		return result;
-	}
+	 private double dataTerm(int k, int altIndex) {
+ 		// Current frame
+ //		float[] Y_n = values[curFrame];
+ 		ImageProcessor Y_n = imp.getStack().getProcessor(curFrame + 1);
+
+ 		// Previous frame
+ //		float[] Y_n_previous = values[curFrame - 1];
+
+ 		ImageProcessor Y_n_previous = imp.getStack().getProcessor(curFrame);
+
+ 		// Pixel starting positions calculated from k
+ //		int posY = (k / widthInBlocks) * blockSize;
+ //		int posX = k % widthInBlocks * blockSize;
+
+ 		double posY = (k / widthInBlocks) * blockSize;
+ 		double posX = k % widthInBlocks * blockSize;
+
+ //		int posYprevious = (int) (posY + v_k.get(altIndex).getY());
+ //		int posXprevious = (int) (posX + v_k.get(altIndex).getX());
+
+ 		double posYprevious = posY + v_k.get(altIndex).getY();
+ 		double posXprevious = posX + v_k.get(altIndex).getX();
+
+ 		// Pixel positions for cost calculation
+ //		int posYcur = 0, posXcur = 0;
+ //		int posYpreviousCur = 0, posXpreviousCur = 0;
+ //		int imagePreviousAddress = 0;
+
+ 		double posYcur = 0, posXcur = 0;
+ 		double posYpreviousCur = 0, posXpreviousCur = 0;
+ 		double imagePreviousAddress = 0;
+
+ 		double result = 0;
+ 		for (int i = 0; i < blockSize * blockSize; i++) {
+ 			posYcur = posY + i / blockSize;
+ 			posXcur = posX + i % blockSize;
+ 			posYpreviousCur = posYprevious + i / blockSize;
+ 			posXpreviousCur = posXprevious + i % blockSize;
+
+ 			imagePreviousAddress = posYpreviousCur * width + posXpreviousCur;
+
+ 			// Edge protection (position + motion vector could overstep image boundaries)
+ 			if(imagePreviousAddress > width * height - 1)
+ 				imagePreviousAddress = width * height - 1;
+ 			if(imagePreviousAddress < 0)
+ 				imagePreviousAddress = 0;
+
+ //			result += Y_n[posYcur * width + posXcur] - Y_n_previous[imagePreviousAddress];
+ 			result += Y_n.getInterpolatedValue(posXcur, posYcur) - Y_n_previous.getInterpolatedValue(posXpreviousCur, posYpreviousCur);
+ 		}
+ 		return result;
+ 	}
 
 	/**
 	 * Calculates the temporal coherence function
