@@ -71,6 +71,7 @@ public class MotionVectorField_ implements PlugInFilter {
 		heightInBlocks = height / blockSize;
 		inStack = imp.getStack();
 		depth = inStack.getSize();
+//		depth = 20;
 		depthMotion = depth - 1;
 		numberOfBlocks = widthInBlocks * heightInBlocks;
 		vecFieldWidth = width * blockSizeMotion / blockSize;
@@ -417,15 +418,16 @@ public class MotionVectorField_ implements PlugInFilter {
 		Arrow tmp; // motion
 		OvalRoi tmp2; // no motion
 		double x,y;
+		int border=2;
 
 		Arrows = new FloatProcessor(width * 4, height * 4);
 		out = new FloatProcessor(width * 4, height * 4);
 		out.copyBits(inStack.getProcessor(slice + 1).resize(4 * width), 0, 0, Blitter.COPY);
-		for (int i = 0; i < heightInBlocks; i++) {
-			for (int j = 0; j < widthInBlocks; j++) {
+		for (int i = border; i < heightInBlocks-border; i++) {
+			for (int j = border; j < widthInBlocks-border; j++) {
 
-				x=V_n[i * widthInBlocks + j].getX();
-				y=V_n[i * widthInBlocks + j].getY();
+				x=V_n[i * (widthInBlocks) + j].getX();
+				y=V_n[i * (widthInBlocks) + j].getY();
 
 				// estimated motion vector
 				xStart = blockSizeMotion / 2 + j * blockSizeMotion;
@@ -433,7 +435,7 @@ public class MotionVectorField_ implements PlugInFilter {
 				xEnd = (blockSizeMotion / 2 + j * blockSizeMotion) + x;
 				yEnd = (blockSizeMotion / 2 + i * blockSizeMotion) + y;
 
-				if(Math.abs(x)+Math.abs(y)<=0.1){
+				if(Math.abs(x)+Math.abs(y)<=0.3){
 					tmp2 = new OvalRoi(xEnd, yEnd, 6, 6);
 					forms[i] = tmp2;
 				}
