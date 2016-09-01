@@ -98,7 +98,7 @@ public class MotionVectorField_ implements PlugInFilter {
 
 		// Calculate and write motion vector field
 		for (int slice = 0; slice < depthMotion; slice++) {
-			if(slice!=0){
+			if(slice != 0){
 				curFrame = slice;
 				for (int i = 0; i < iterations; i++) {
 					for (int k = 0; k < numberOfBlocks; k++) {
