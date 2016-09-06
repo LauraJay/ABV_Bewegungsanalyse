@@ -435,7 +435,7 @@ public class MotionVectorField_ implements PlugInFilter {
 				xEnd = (blockSizeMotion / 2 + j * blockSizeMotion) + x;
 				yEnd = (blockSizeMotion / 2 + i * blockSizeMotion) + y;
 
-				if(Math.abs(x)+Math.abs(y)<=2.0){
+				if(Math.abs(x)+Math.abs(y)<=3.0){
 					tmp2 = new OvalRoi(xEnd, yEnd, 6, 6);
 					forms[i] = tmp2;
 				}
