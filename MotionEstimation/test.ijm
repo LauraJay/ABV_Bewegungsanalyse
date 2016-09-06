@@ -1,5 +1,9 @@
 //Lukas
+<<<<<<< HEAD
 //open("D:\\Dropbox\\Eclipse_Workspace\\ABV_Bewegungsanalyse\\MotionEstimation\\TIFF_sequence\\Structure_Moving_2.tif");
+=======
+open("D:\\Dropbox\\Eclipse_Workspace\\ABV_Bewegungsanalyse\\MotionEstimation\\TIFF_sequence\\Airport.tif");
+>>>>>>> 3755b16e0509d67260b6e4070fc3233774755482
 
 //Laura 
 //run("AVI...", "open=[//Users//laura//Documents//GitHub//ABV_Bewegungsanalyse//MotionEstimation//b_testmaterial2.avi] first=0 last=92 use");
