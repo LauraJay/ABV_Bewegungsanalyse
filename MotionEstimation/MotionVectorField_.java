@@ -25,7 +25,7 @@ public class MotionVectorField_ implements PlugInFilter {
 	private int blockSize = 8, blockSizeMotion = 32;
 
 	// Numbers of Iterations
-	private int iterations = 5;
+	private int iterations = 10;
 
 	// Current frame
 	private int curFrame = 0;
@@ -56,8 +56,8 @@ public class MotionVectorField_ implements PlugInFilter {
 
 	public int setup(String arg, ImagePlus imp) {
 		this.imp = imp;
-		lambda = 0.5;
-		lambda_T = 0.5;
+		lambda = 3.0;
+		lambda_T = 3.0;
 		v_k = new ArrayList<Vector2D>();
 		return DOES_ALL | NO_CHANGES | STACK_REQUIRED;
 	}
@@ -433,7 +433,7 @@ public class MotionVectorField_ implements PlugInFilter {
 				xEnd = (blockSizeMotion / 2 + j * blockSizeMotion) + x;
 				yEnd = (blockSizeMotion / 2 + i * blockSizeMotion) + y;
 
-				if(Math.abs(x)+Math.abs(y)<=0.1){
+				if(Math.abs(x)+Math.abs(y)<=2.0){
 					tmp2 = new OvalRoi(xEnd, yEnd, 6, 6);
 					forms[i] = tmp2;
 				}
