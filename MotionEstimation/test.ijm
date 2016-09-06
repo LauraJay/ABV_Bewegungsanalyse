@@ -1,5 +1,5 @@
 //Lukas
-open("D:\\Dropbox\\Eclipse_Workspace\\ABV_Bewegungsanalyse\\MotionEstimation\\TIFF_sequence\\Ehrenfeld.tif");
+open("D:\\Dropbox\\Eclipse_Workspace\\ABV_Bewegungsanalyse\\MotionEstimation\\TIFF_sequence\\Ehrenfeld_Faster.tif");
 
 //Laura 
 //run("AVI...", "open=[//Users//laura//Documents//GitHub//ABV_Bewegungsanalyse//MotionEstimation//b_testmaterial2.avi] first=0 last=92 use");
