@@ -1,8 +1,12 @@
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Iterator;
 
 import org.apache.commons.math3.geometry.euclidean.twod.Vector2D;
 
+import ij.IJ;
 import ij.ImagePlus;
 import ij.ImageStack;
 import ij.gui.Arrow;
@@ -95,19 +99,31 @@ public class MotionVectorField_ implements PlugInFilter {
 		for (int i = 0; i < widthInBlocks * heightInBlocks; i++) {
 			V_n[i] = new Vector2D(0, 0);
 		}
-
+		
+		// Display status message
+		DateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy 'at' HH:mm:ss");
+		Date date = new Date();
+		IJ.showStatus("Motion vector field estimation startet on " + dateFormat.format(date) + ".");
+		
 		// Calculate and write motion vector field
 		for (int slice = 0; slice < depthMotion; slice++) {
 			if(slice != 0){
 				curFrame = slice;
 				for (int i = 0; i < iterations; i++) {
 					V_n_previous = V_n;
+				
 					for (int k = 0; k < numberOfBlocks; k++) {
+						
 						v_k = getAlternatives(k);
-						indexAlterMin = minimizeCostFunc(k);
+						
+						
+						indexAlterMin = minimizeCostFunc(k);						
 						V_n[k] = v_k.get(indexAlterMin);
-					}
+					}					
+					
 				}
+				// Show progress in ImageJ window
+				IJ.showProgress(slice, depthMotion);
 			}
 
 			outIp = generateMVFPerSlice(slice);
