@@ -117,7 +117,7 @@ public class MotionVectorField_ implements PlugInFilter {
 						v_k = getAlternatives(k);
 						
 						
-						indexAlterMin = minimizeCostFunc(k);						
+						indexAlterMin = minimizeCostFunc(k);
 						V_n[k] = v_k.get(indexAlterMin);
 					}					
 					
@@ -176,14 +176,8 @@ public class MotionVectorField_ implements PlugInFilter {
 	 */
 	private double costFunc(int k, int altIndex) {
 		double dataTerm = dataTerm(k, altIndex) * dataTerm(k, altIndex);
-//		double dataTerm1 = Math.abs(dataTerm(k, altIndex));
 		double spatialCoherence = lambda * spatialCoherence(k, altIndex);
 		double tempCoherence = lambda_T * tempCoherence(k, altIndex);
-//		System.out.println("dataTerm: " + dataTerm);
-//		System.out.println("dataTerm1: " + dataTerm1);
-//		System.out.println("Spatial: " + spatialCoherence);
-//		System.out.println("Temporal: " + tempCoherence);
-
 		return dataTerm + spatialCoherence + tempCoherence;
 	}
 
@@ -209,23 +203,13 @@ public class MotionVectorField_ implements PlugInFilter {
  		ImageProcessor Y_n_previous = imp.getStack().getProcessor(curFrame);
 
  		// Pixel starting positions calculated from k
- //		int posY = (k / widthInBlocks) * blockSize;
- //		int posX = k % widthInBlocks * blockSize;
-
  		double posY = (k / widthInBlocks) * blockSize;
  		double posX = k % widthInBlocks * blockSize;
-
- //		int posYprevious = (int) (posY + v_k.get(altIndex).getY());
- //		int posXprevious = (int) (posX + v_k.get(altIndex).getX());
 
  		double posYprevious = posY + v_k.get(altIndex).getY();
  		double posXprevious = posX + v_k.get(altIndex).getX();
 
  		// Pixel positions for cost calculation
- //		int posYcur = 0, posXcur = 0;
- //		int posYpreviousCur = 0, posXpreviousCur = 0;
- //		int imagePreviousAddress = 0;
-
  		double posYcur = 0, posXcur = 0;
  		double posYpreviousCur = 0, posXpreviousCur = 0;
  		double imagePreviousAddress = 0;
@@ -245,7 +229,6 @@ public class MotionVectorField_ implements PlugInFilter {
  			if(imagePreviousAddress < 0)
  				imagePreviousAddress = 0;
 
- //			result += Y_n[posYcur * width + posXcur] - Y_n_previous[imagePreviousAddress];
  			result += Y_n.getInterpolatedValue(posXcur, posYcur) - Y_n_previous.getInterpolatedValue(posXpreviousCur, posYpreviousCur);
  		}
  		return result;
