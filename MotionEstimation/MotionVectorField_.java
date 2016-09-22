@@ -10,6 +10,7 @@ import ij.gui.OvalRoi;
 import ij.gui.Roi;
 import ij.plugin.filter.PlugInFilter;
 import ij.process.Blitter;
+import ij.process.ByteProcessor;
 import ij.process.FloatProcessor;
 import ij.process.ImageProcessor;
 
@@ -25,7 +26,7 @@ public class MotionVectorField_ implements PlugInFilter {
 	private int blockSize = 8, blockSizeMotion = 32;
 
 	// Numbers of Iterations
-	private int iterations = 10;
+	private int iterations = 5;
 
 	// Current frame
 	private int curFrame = 0;
@@ -40,7 +41,7 @@ public class MotionVectorField_ implements PlugInFilter {
 	private double lambda_T;
 
 	// Picture data Y_n [frame][width * height]
-	private float[][] values;
+	private byte[][] values;
 
 	// Vector alternatives for current frame
 	private ArrayList<Vector2D> v_k;
@@ -56,8 +57,8 @@ public class MotionVectorField_ implements PlugInFilter {
 
 	public int setup(String arg, ImagePlus imp) {
 		this.imp = imp;
-		lambda = 3.0;
-		lambda_T = 3.0;
+		lambda = 0.3;
+		lambda_T = 0.3;
 		v_k = new ArrayList<Vector2D>();
 		return DOES_ALL | NO_CHANGES | STACK_REQUIRED;
 	}
@@ -77,15 +78,15 @@ public class MotionVectorField_ implements PlugInFilter {
 		vecFieldWidth = width * blockSizeMotion / blockSize;
 		vecFieldHeight = height * blockSizeMotion / blockSize;
 
-		values = new float[depth][];
+		values = new byte[depth][];
 
 		outStack = new ImageStack(vecFieldWidth , vecFieldHeight);
-		FloatProcessor outIp;
+		ByteProcessor outIp;
 		int indexAlterMin;
 
 		// Read data from Stack
 		for (int slice = 0; slice < depth; slice++) {
-			values[slice] = (float[]) inStack.getProcessor(slice + 1).getPixels();
+			values[slice] = (byte[]) inStack.getProcessor(slice + 1).getPixels();
 		}
 
 		// Create a first vector field, where all vectors are equal (0, 0, 1)
@@ -411,8 +412,9 @@ public class MotionVectorField_ implements PlugInFilter {
 	}
 
 
-	FloatProcessor generateMVFPerSlice(int slice){
-		FloatProcessor Arrows,out;
+	ByteProcessor generateMVFPerSlice(int slice){
+		ByteProcessor out;
+		FloatProcessor Arrows;
 		double xStart, yStart, xEnd, yEnd;
 		Roi[] forms = new Roi[numberOfBlocks];
 		Arrow tmp; // motion
@@ -421,7 +423,7 @@ public class MotionVectorField_ implements PlugInFilter {
 		int border=2;
 
 		Arrows = new FloatProcessor(width * 4, height * 4);
-		out = new FloatProcessor(width * 4, height * 4);
+		out = new ByteProcessor(width * 4, height * 4);
 		out.copyBits(inStack.getProcessor(slice + 1).resize(4 * width), 0, 0, Blitter.COPY);
 		for (int i = border; i < heightInBlocks-border; i++) {
 			for (int j = border; j < widthInBlocks-border; j++) {

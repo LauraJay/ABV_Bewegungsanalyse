@@ -9,7 +9,7 @@ open("D:\\Dropbox\\Eclipse_Workspace\\ABV_Bewegungsanalyse\\MotionEstimation\\TI
 //open("//Users//laura//Documents//Studium//Master//BildverarbeitungMaster//Abgabe BVA//Testmaterial//Material_A.tif");
 
 //open("//Users//laura//Documents//GitHub//ABV_Bewegungsanalyse//MotionEstimation//TIFF_sequence//Ehrenfeld.tif");
-run("32-bit");
+run("8-bit");
 
 //motion estimation
 run("MotionVectorField ");
