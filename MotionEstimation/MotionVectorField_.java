@@ -58,6 +58,14 @@ public class MotionVectorField_ implements PlugInFilter {
 
 	// Weighting factor
 	private double g_l;
+	
+	// Toggle calculation of motion vector deviation
+	private boolean calcDeviation = true;
+	private double frameDeviation = 0.0;
+	private double iterDeviation = 0.0;
+	private Vector2D correctMotionVector50 = new Vector2D(10, 0);
+	private Vector2D correctMotionVector100 = new Vector2D(10, 10);
+	private Vector2D correctMotionVector150 = new Vector2D(0, 10);
 
 	public int setup(String arg, ImagePlus imp) {
 		this.imp = imp;
@@ -119,16 +127,31 @@ public class MotionVectorField_ implements PlugInFilter {
 						
 						indexAlterMin = minimizeCostFunc(k);
 						V_n[k] = v_k.get(indexAlterMin);
+						
+						// Calculate deviation for current vector
+						if(calcDeviation && slice <= 50)
+							frameDeviation += V_n[k].distance(correctMotionVector50);
+						else if(calcDeviation && slice > 50 && slice <= 100)
+							frameDeviation += V_n[k].distance(correctMotionVector100);
+						else if(calcDeviation && slice > 100 && slice <= 150)
+							frameDeviation += V_n[k].distance(correctMotionVector150);
 					}					
 					
 				}
 				// Show progress in ImageJ window
 				IJ.showProgress(slice, depthMotion);
+				
+				// Output deviation in current frame
+				if(calcDeviation){
+					System.out.println("Mean deviation in frame " + slice + ": " + frameDeviation/V_n.length);
+					frameDeviation = 0;
+				}
 			}
 
 			outIp = generateMVFPerSlice(slice);
 			outStack.addSlice(outIp);
 		}
+		
 
 		String title = generateTitle();
 		ImagePlus window = new ImagePlus("Motion Vector Field of " + title, outStack);

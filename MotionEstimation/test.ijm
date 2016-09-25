@@ -1,5 +1,5 @@
 //Lukas
-open("D:\\Dropbox\\Eclipse_Workspace\\ABV_Bewegungsanalyse\\MotionEstimation\\TIFF_sequence\\Ehrenfeld_Faster.tif");
+open("D:\\Dropbox\\Eclipse_Workspace\\ABV_Bewegungsanalyse\\MotionEstimation\\TIFF_sequence\\flowers.tif");
 
 
 //Laura 
