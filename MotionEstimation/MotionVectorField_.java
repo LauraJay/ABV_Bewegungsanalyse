@@ -30,7 +30,7 @@ public class MotionVectorField_ implements PlugInFilter {
 	private int blockSize = 8, blockSizeMotion = 32;
 
 	// Numbers of Iterations
-	private int iterations = 5;
+	private int iterations = 10;
 
 	// Current frame
 	private int curFrame = 0;
@@ -113,6 +113,9 @@ public class MotionVectorField_ implements PlugInFilter {
 		Date date = new Date();
 		IJ.showStatus("Motion vector field estimation startet on " + dateFormat.format(date) + ".");
 		
+		if(calcDeviation)
+			System.out.println("Mean deviation in ");
+		
 		// Calculate and write motion vector field
 		for (int slice = 0; slice < depthMotion; slice++) {
 			if(slice != 0){
@@ -123,19 +126,26 @@ public class MotionVectorField_ implements PlugInFilter {
 					for (int k = 0; k < numberOfBlocks; k++) {
 						
 						v_k = getAlternatives(k);
-						
-						
+												
 						indexAlterMin = minimizeCostFunc(k);
 						V_n[k] = v_k.get(indexAlterMin);
 						
 						// Calculate deviation for current vector
 						if(calcDeviation && slice <= 50)
-							frameDeviation += V_n[k].distance(correctMotionVector50);
+							iterDeviation += V_n[k].distance(correctMotionVector50);
 						else if(calcDeviation && slice > 50 && slice <= 100)
-							frameDeviation += V_n[k].distance(correctMotionVector100);
+							iterDeviation += V_n[k].distance(correctMotionVector100);
 						else if(calcDeviation && slice > 100 && slice <= 150)
-							frameDeviation += V_n[k].distance(correctMotionVector150);
-					}					
+							iterDeviation += V_n[k].distance(correctMotionVector150);
+					}
+					
+					if(calcDeviation && i == iterations - 1)
+						frameDeviation = iterDeviation;
+					
+					if(calcDeviation){
+						System.out.println("\t\titeration " + i + ": " + iterDeviation / V_n.length);
+						iterDeviation = 0;
+					}
 					
 				}
 				// Show progress in ImageJ window
@@ -143,7 +153,7 @@ public class MotionVectorField_ implements PlugInFilter {
 				
 				// Output deviation in current frame
 				if(calcDeviation){
-					System.out.println("Mean deviation in frame " + slice + ": " + frameDeviation/V_n.length);
+					System.out.println("\tin frame " + slice + ": " + frameDeviation / V_n.length);
 					frameDeviation = 0;
 				}
 			}
