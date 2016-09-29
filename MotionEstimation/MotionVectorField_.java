@@ -153,7 +153,7 @@ public class MotionVectorField_ implements PlugInFilter {
 				
 				// Output deviation in current frame
 				if(calcDeviation){
-					System.out.println("\tin frame " + slice + ": " + frameDeviation / V_n.length);
+					System.out.println("\tframe " + slice + ": " + frameDeviation / V_n.length);
 					frameDeviation = 0;
 				}
 			}
